@@ -35,4 +35,13 @@ defmodule Day3Test do
     assert Day3.pointForLetter("s") == 19
   end
 
+  test "group three lines together" do
+    input = ["one", "two", "three", "four", "five", "six", "seven"]
+    assert Enum.reduce(input, "", fn (line, output) -> Day3.groupThree(line, output) end) == [["seven"],["six", "five", "four"], ["three", "two", "one"]]
+  end
+
+  test "common letter between three" do
+    assert Day3.commonLetterInThree(["abc", "ebf", "web"]) == "b"
+  end
+
 end
