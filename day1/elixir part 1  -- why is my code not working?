@@ -1,0 +1,79 @@
+elixir part 1  -- why is my code not working?
+
+My goal is to learn elixir by working through example problems(katas) from https://adventofcode.com/ 
+
+The first problem on day1 was to sum up calories for the elves and find the maximum calories carried by an elf.
+https://adventofcode.com/2022/day/1 for full description.
+
+The first try looked like this: (does not work, and has tons of puts to try and work out what is going on.)
+max = 0
+sum = 0
+
+{:ok, contents} = File.read("day1.txt")
+caloriesString = contents |> String.split("\n", trim: false)
+
+for x <- caloriesString do
+	if x == "" do
+		IO.puts("Empty")
+		if sum > max do 
+			max = sum // never ran since sum = max = 0
+			IO.puts("New max:")
+			IO.puts(max)
+		else	
+			IO.puts("Not greater sum:")
+			IO.puts(sum) // output 0
+			IO.puts("max:")
+			IO.puts(max) // output 0
+		end
+		sum = 0
+	else
+		IO.puts("Incrementing")
+		{int_val, ""} = Integer.parse(x)
+		IO.puts("Parsed:")
+		IO.puts(int_val) // each value output
+		newTotal = sum + int_val // this was same as int_val
+		sum = newTotal
+		IO.puts(sum)
+	end
+end
+
+IO.puts("Part 1: ")
+IO.puts(max)
+
+This continued to return zero since max was defined as zero. I had placed several output lines to try and see what was happening, and it output zero for max, and sum was always zero.
+The variables have immutability, once assigned that is the value. 
+
+The second attempt uses recursion to handle the head of each list (first element) and accumulates the sum as it goes.  When it reaches the "" blank line elements it determines if the sum of values is a new max. A new max value is just passed in as third argument, or existing max is passed.
+In order to use the functions, they needed to be in a module, so I defined the Day1 module.  
+
+Finally once all elements have been processed the empty list will be called with the accumulator and max, and it will return the maximum value. And it will be assigned one time and then will output to the console the answer.
+
+The second try code:
+defmodule Day1 do
+  def sum_list_with_max([head | tail], accumulator, max) do
+  	if head == "" do
+  		if accumulator > max do
+  			sum_list_with_max(tail, 0 , accumulator)
+  		else
+  			sum_list_with_max(tail, 0, max)
+  		end  		
+  	else
+  	  {head_value, ""} = Integer.parse(head)
+	  sum_list_with_max(tail, head_value + accumulator, max)
+  	end
+  end
+
+  def sum_list_with_max([], _accumulator, max) do
+    max
+  end
+end
+
+{:ok, contents} = File.read("day1.txt")
+caloriesString = contents |> String.split("\n", trim: false)
+max = Day1.sum_list_with_max(caloriesString, 0, 0)
+
+IO.puts("Part 1: ")
+IO.puts(max)
+
+For the second part I will cover testing elixir discoveries, and refactoring.
+
