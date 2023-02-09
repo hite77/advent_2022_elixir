@@ -19,7 +19,7 @@ defmodule Day4 do
   end
 
    @doc """
-  Split coordinates
+  Includes coordinates
 
   ## Examples
 
@@ -32,6 +32,9 @@ defmodule Day4 do
       iex> Day4.includes([2,4,6,8])
       0
 
+      iex> Day4.includes([2,6,6,8])
+      0
+
 
   """
 
@@ -39,12 +42,44 @@ defmodule Day4 do
   def includes([startFirst, endFirst, startSecond, endSecond]) when startFirst <= startSecond and endFirst >= endSecond, do: 1
   def includes(_), do: 0
 
+  @doc """
+  Includes any coordinates
+
+  ## Examples
+
+      iex> Day4.includesAny([6,6,4,6])
+      1
+
+      iex> Day4.includesAny([2,8,3,7])
+      1
+
+      iex> Day4.includesAny([2,4,6,8])
+      0
+
+      iex> Day4.includesAny([2,6,6,8])
+      1
+
+  """
+
+  def includesAny([_, endFirst, startSecond, endSecond]) when endFirst in startSecond..endSecond, do: 1
+  def includesAny([startFirst, _, startSecond, endSecond]) when startFirst in startSecond..endSecond, do: 1
+  def includesAny([startFirst, endFirst, _, endSecond]) when endSecond in startFirst..endFirst, do: 1
+  def includesAny([startFirst, endFirst, startSecond, _]) when startSecond in startFirst..endFirst, do: 1
+  def includesAny(_), do: 0
 
   def part1() do
     {:ok, contents} = File.read("day4.txt")
     contents |> String.split("\n", trim: false)
              |> Enum.map(fn line -> splitCoordinates(line) end)
              |> Enum.map(fn coords -> includes(coords) end)
+             |> Enum.sum()
+  end
+
+  def part2() do
+    {:ok, contents} = File.read("day4.txt")
+    contents |> String.split("\n", trim: false)
+             |> Enum.map(fn line -> splitCoordinates(line) end)
+             |> Enum.map(fn coords -> includesAny(coords) end)
              |> Enum.sum()
   end
 end

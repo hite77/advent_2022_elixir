@@ -14,4 +14,13 @@ defmodule Day4Test do
     assert Day4.includes([6,6,4,6]) == 1
     assert Day4.includes([2,6,4,8]) == 0
   end
+
+  test "fully includes any part ranges" do
+    assert Day4.includesAny([2,4,6,8]) == 0
+    assert Day4.includesAny([2,3,4,5]) == 0
+    assert Day4.includesAny([5,7,7,9]) == 1
+    assert Day4.includesAny([2,8,3,7]) == 1
+    assert Day4.includesAny([6,6,4,6]) == 1
+    assert Day4.includesAny([2,6,4,8]) == 1
+  end
 end
