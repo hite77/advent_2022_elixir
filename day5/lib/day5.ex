@@ -8,11 +8,52 @@ defmodule Day5 do
     part1(contents)
   end
 
-  # Document the separate
+  def solve2 do
+    {:ok, contents} = File.read("day5.txt")
+    part2(contents)
+  end
+
+  @doc """
+  Separate strings into crates and moves.
+
+  ## Examples
+
+  Ignore double quote and output the same
+  iex> Day5.separate("", [["move 1 from 1 to 2", "move 2 from 2 to 1"], ["[Z] [M] [P]", "[N] [C]"]])
+  [["move 1 from 1 to 2", "move 2 from 2 to 1"], ["[Z] [M] [P]", "[N] [C]"]]
+
+  Add item to inner brace if empty list
+  iex> Day5.separate("    [D]", [])
+  [["    [D]"]]
+
+  Add another item before column separator will add togeter
+  iex> Day5.separate("[M] [C] [P]", [["    [D]"]])
+  [["[M] [C] [P]", "    [D]"]]
+
+  Item that is the column indicator will build another list
+  iex> Day5.separate(" 1   2   3", [["    [D]"]])
+  [[], ["    [D]"]]
+
+  Adding an item with two sub arrays will add item to first one
+  iex> Day5.separate("move 3 from 1 to 2", [[], ["    [D]"]])
+  [["move 3 from 1 to 2"], ["    [D]"]]
+
+  Adding another item will add it to moves
+  iex> Day5.separate("move 9 from 8 to 7", [["move 3 from 1 to 2"], ["    [D]"]])
+  [["move 9 from 8 to 7", "move 3 from 1 to 2"], ["    [D]"]]
+
+  Separates and gathers crate strings and moves. Both are reversed, and will be flipped when processed.
+  iex> input = ["    [D]", "[N] [C]", "[Z] [M] [P]", " 1   2   3", "", "move 1 from 2 to 1", "move 3 from 1 to 3", "move 2 from 2 to 1", "move 1 from 1 to 2", ""]
+  iex> [moves, crates] = Enum.reduce(input, [], fn (item, output) -> Day5.separate(item, output) end)
+  iex> crates
+  ["[Z] [M] [P]", "[N] [C]", "    [D]"]
+  iex> moves
+  ["move 1 from 1 to 2", "move 2 from 2 to 1", "move 3 from 1 to 3", "move 1 from 2 to 1"]
+
+  """
 
   def separate("", output), do: output
   def separate(item, []), do: [[item]]
-  def separate(item, [[head]]), do: [[item, head]]
   def separate(item, [[head | tail]]) do
     if !String.contains?(item, "[") && !String.contains?(item, "move") do
       [[],[head | tail]]
@@ -20,9 +61,8 @@ defmodule Day5 do
       [[item, head | tail]]
     end
   end
-  def separate(item, [[],moves]), do: [[item], moves]
-  def separate(item, [[crate],moves]), do: [[item, crate], moves]
-  def separate(item, [[head | tail],moves]), do: [[item, head | tail], moves]
+  def separate(item, [[], crates]), do: [[item], crates]
+  def separate(item, [[head | tail],crates]), do: [[item, head | tail], crates]
 
 @doc """
   Convert Crates from string to map
@@ -149,24 +189,19 @@ defmodule Day5 do
   ## Examples
 
   Moving 2 crate from 2 column to 1st column
-  iex> Day5.multiMove(%{1 => ["[N]","[Z]"],2 => ["[D]","[C]","[M]"],3 => ["[P]"]},2 ,2 , 1, [])
+  iex> Day5.multiMove({2 ,2 , 1}, %{1 => ["[N]","[Z]"],2 => ["[D]","[C]","[M]"],3 => ["[P]"]})
   %{1 => ["[D]", "[C]", "[N]","[Z]"],2 => ["[M]"],3 => ["[P]"]}
+
+  Moving 3 from 1 to 3
+  iex> Day5.multiMove({3,1,3}, %{1 => ["[D]", "[N]", "[Z]"], 2 => ["[C]", "[M]"], 3 => ["[P]"]})
+  %{1 => [], 2 => ["[C]", "[M]"], 3 => ["[D]", "[N]", "[Z]", "[P]"]}
 
   """
 
-  def multiMove(crateMap, 0, _from, to, cratesMoving) do
-    crateMap = put_in crateMap[to], Enum.concat(cratesMoving, crateMap[to])
-  end
-  def multiMove(crateMap, count, from, to, []) do
-    [head | tail] = crateMap[from]
-    crateMap = put_in crateMap[from], tail
-    multiMove(crateMap, count - 1, from, to, [head])
-  end
-  def multiMove(crateMap, count, from, to, cratesMoving) do
-    [head | tail] = crateMap[from]
-    crateMap = put_in crateMap[from], tail
-    [existing] = cratesMoving
-    multiMove(crateMap, count - 1, from, to, [existing, head])
+  def multiMove({count, from, to}, crateMap) do
+    moveItems = Enum.slice(crateMap[from], 0..count-1)
+    crateMap = put_in crateMap[from], Enum.slice(crateMap[from], count..length(crateMap[from]))
+    put_in crateMap[to], Enum.concat(moveItems, crateMap[to])
   end
 
   @doc """
@@ -188,6 +223,18 @@ defmodule Day5 do
     stripped
   end
 
+  def commonSetup(contents) do
+    [movesStrings, cratesString] = contents |> String.split("\n", trim: false)
+                                            |> Enum.reduce([], fn (item, output) -> separate(item, output) end)
+
+    crates = cratesString |> Enum.reduce(%{}, fn (string, crates) -> convertCrates(string, 1 ,crates) end)
+
+    moves = movesStrings |> Enum.reverse()
+                         |> Enum.map(fn moveString -> convertMove(moveString) end)
+
+    [crates, moves]
+  end
+
     @doc ~S"""
   Part 1 -- Parses contents for Crate locations at start, moves to perform
   It makes the moves, and then pulls the letters for top crate as answer
@@ -201,17 +248,12 @@ defmodule Day5 do
   """
 
   def part1(contents) do
-    [movesStrings, cratesString] = contents |> String.split("\n", trim: false)
-                                            |> Enum.reduce([], fn (item, output) -> separate(item, output) end)
+    [crates, moves] = commonSetup(contents)
 
-    crates = cratesString |> Enum.reduce(%{}, fn (string, crates) -> convertCrates(string, 1 ,crates) end)
-
-    movesStrings |> Enum.reverse()
-                 |> Enum.map(fn moveString -> convertMove(moveString) end)
-                 |> Enum.reduce(crates, fn (move, output) -> performMove(move, output) end)
-                 |> Enum.map(fn x -> Day5.topCrate(x) end)
-                 |> Enum.join()
-  end
+    moves |> Enum.reduce(crates, fn (move, output) -> performMove(move, output) end)
+          |> Enum.map(fn x -> Day5.topCrate(x) end)
+          |> Enum.join()
+   end
 
    @doc ~S"""
   Part 1 -- Parses contents for Crate locations at start, moves to perform
@@ -221,15 +263,16 @@ defmodule Day5 do
 
   One item will return the letter in the crate.
   iex> Day5.part2("    [D]\n[N] [C]\n[Z] [M] [P]\n 1   2   3\n\nmove 1 from 2 to 1\nmove 3 from 1 to 3\nmove 2 from 2 to 1\nmove 1 from 1 to 2\n")
-  "CMZ"
+  "MCD"
 
   """
 
   def part2(contents) do
+    [crates, moves] = commonSetup(contents)
 
+    moves |> Enum.reduce(crates, fn (move, output) -> multiMove(move, output) end)
+          |> Enum.map(fn x -> Day5.topCrate(x) end)
+          |> Enum.join()
   end
-
-  #part2 move is different (1 behaves the same, 2 or more pick both up)
-  # need to reverse pick ups?
 
 end

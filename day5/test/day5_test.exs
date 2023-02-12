@@ -87,4 +87,45 @@ move 1 from 1 to 2
   test "solve1 using my input" do
     assert Day5.solve1 == "TDCHVHJTG"
   end
+
+  test "multimove tests" do
+    crates = %{
+      1 => ["[N]","[Z]"],
+      2 => ["[D]","[C]","[M]"],
+      3 => ["[P]"]
+    }
+
+    # move 1 from 2 to 1
+    move1Crates = %{1 => ["[D]", "[N]", "[Z]"], 2 => ["[C]", "[M]"], 3 => ["[P]"]}
+    # move 3 from 1 to 3
+    move2Crates = %{1 => [], 2 => ["[C]", "[M]"], 3 => ["[D]", "[N]", "[Z]", "[P]"]}
+    # move 2 from 2 to 1
+    move3Crates = %{1 => ["[C]", "[M]"], 2 => [], 3 => ["[D]", "[N]", "[Z]", "[P]"]}
+    # move 1 from 1 to 2
+    move4Crates = %{1 => ["[M]"], 2 => ["[C]"], 3 => ["[D]", "[N]", "[Z]", "[P]"]}
+
+    assert Day5.multiMove({1, 2, 1}, crates) == move1Crates
+    assert Day5.multiMove({3, 1, 3}, move1Crates) == move2Crates
+    assert Day5.multiMove({2, 2, 1}, move2Crates) == move3Crates
+    assert Day5.multiMove({1, 1, 2}, move3Crates) == move4Crates
+  end
+
+  test "part2 test" do
+    input = """
+    [D]
+[N] [C]
+[Z] [M] [P]
+ 1   2   3
+
+move 1 from 2 to 1
+move 3 from 1 to 3
+move 2 from 2 to 1
+move 1 from 1 to 2
+"""
+    assert Day5.part2(input) == "MCD"
+  end
+
+  test "solve2 using my input" do
+    assert Day5.solve2 == "NGCMPJLHV"
+  end
 end
