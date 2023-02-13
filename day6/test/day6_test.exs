@@ -10,7 +10,15 @@ defmodule Day6Test do
     assert Day6.findPositionOfFirstUniqueFourCharacters("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw", 4) == 11
   end
 
-  test "solve part 1" do
+  test "same for 14 unique" do
+    assert Day6.findPositionOfFirstUnique14Characters("bvwbjplbgvbhsrlpgdmjqwftvncz", 14) == 23
+    assert Day6.findPositionOfFirstUnique14Characters("nppdvjthqldpwncqszvftbrmjlhg", 14) == 23
+    assert Day6.findPositionOfFirstUnique14Characters("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg", 14) == 29
+    assert Day6.findPositionOfFirstUnique14Characters("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw", 14) == 26
+  end
+
+  test "solutions" do
     assert Day6.solve1 == 1760
+    assert Day6.solve2 == 2974
   end
 end
