@@ -148,8 +148,6 @@ defmodule Day7 do
   52
 
   """
-
-
   def sizes({_path, []}, _files), do: 0
   def sizes({_path, [{size, _filename}]}, _files), do: size
   def sizes({path, [{size, _filename} | tail]}, files), do: size + sizes({path, tail}, files)
@@ -177,17 +175,38 @@ defmodule Day7 do
   def truncate(size) when size > 100000, do: 0
   def truncate(size), do: size
 
-  def part1(contents) do
+  def common(contents) do
     [_path, map] = contents |> String.split("\n")
                             |> Enum.reduce([[], %{}], fn (item, files) -> parsing(item, files) end)
 
     map |> Enum.map(fn folder -> sizes(folder, map) end)
-        |> Enum.map(fn size -> truncate(size) end)
-        |> Enum.sum()
+  end
+
+  def part1(contents) do
+    common(contents) |> Enum.map(fn size -> truncate(size) end)
+                     |> Enum.sum()
+  end
+
+  def unusedSpace(folderSizes) do
+    70000000 - (folderSizes |> :lists.reverse() |> hd())
+  end
+
+  def smallestFolder(size, 0, smallestSizeNeeded) when size >= smallestSizeNeeded, do: size
+  def smallestFolder(_size, output, _smallestSizeNeeded), do: output
+
+  def part2(contents) do
+    sizes = common(contents) |> Enum.sort()
+    smallestSizeNeeded = 30000000 - unusedSpace(sizes)
+    sizes |> Enum.reduce(0, fn (size, output) -> smallestFolder(size, output, smallestSizeNeeded) end)
   end
 
   def solve1 do
     {:ok, contents} = File.read("day7.txt")
     part1(contents)
+  end
+
+  def solve2 do
+    {:ok, contents} = File.read("day7.txt")
+    part2(contents)
   end
 end

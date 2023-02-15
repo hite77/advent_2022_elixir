@@ -54,3 +54,19 @@ $ ls
 
 - find all directories with a total size of `at most 100000` then calculate the sum of those.
 - From above a and e - which iis 95437 (94853 + 584)
+
+**Part 2**
+
+total 70000000 disk space available
+need at least 30000000
+
+[584, 94853, 24933642, 48381165] folder sizes
+
+unused space currently = 70000000-   (biggest folder)
+                                         = 21618835
+
+1. done — biggest folder (last) subtracted from 70000000 reverse, head hd()<——
+2. done - At least folder as big as 8381165 ==> 30000000 -  unused
+
+Could reduce and look for first that is greater and set accum
+ignore others.

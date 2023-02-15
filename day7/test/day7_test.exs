@@ -54,11 +54,28 @@ defmodule Day7Test do
     assert Day7.part1(input) == 95437
   end
 
+  test "unused space" do
+    assert Day7.unusedSpace([584, 94853, 24933642, 48381165]) == 21618835
+  end
+
+  test "find folder size to delete" do
+    assert Day7.smallestFolder(584, 0, 8381165) == 0
+    assert Day7.smallestFolder(94853, 0, 8381165) == 0
+    assert Day7.smallestFolder(24933642, 0, 8381165) == 24933642
+    assert Day7.smallestFolder(48381165, 24933642, 8381165) == 24933642
+  end
+
+  test "part 2" do
+    input = "$ cd /\n$ ls\ndir a\n14848514 b.txt\n8504156 c.dat\ndir d\n$ cd a\n$ ls\ndir e\n29116 f\n2557 g\n62596 h.lst\n$ cd e\n$ ls\n584 i\n$ cd ..\n$ cd ..\n$ cd d\n$ ls\n4060174 j\n8033020 d.log\n5626152 d.ext\n7214296 k\n"
+    assert Day7.part2(input) == 24933642
+  end
+
   test "adding up sizes of directories up to 100000" do
     assert Day7.sizes({"/a/e", [{584, "i"}]}, %{}) == 584
   end
 
   test "solve" do
     assert Day7.solve1 == 1642503
+    assert Day7.solve2 == 6999588
   end
 end
