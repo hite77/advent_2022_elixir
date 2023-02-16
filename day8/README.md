@@ -1,21 +1,57 @@
 # Day8
 
-**TODO: Add description**
+**Part 1**
 
-## Installation
+tree height
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `day8` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:day8, "~> 0.1.0"}
-  ]
-end
 ```
+30373
+25512
+65332
+33549
+35390
+```
+0 shortest
+9 tallest
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/day8>.
+* tree visible if all of the other trees between it and an edge of the grid are shorter
+* only consider trees in the same row or column (only look up, down, left, or right)
+* All trees around the edge are visible
+* Only consider the interior trees
+* The top-left 5 is visible from the left and top. (It isn't visible from the right or bottom since other trees of height 5 are in the way.)
+* The top-middle 5 is visible from the top and right.
+* The top-right 1 is not visible from any direction; for it to be visible, there would need to only be trees of height 0 between it and an edge.
+* The left-middle 5 is visible, but only from the right.
+* The center 3 is not visible from any direction; for it to be visible, there would need to be only trees of at most height 2 between it and an edge.
+* The right-middle 3 is visible from the right.
+* In the bottom row, the middle 5 is visible, but the 3 and 4 are not.
+With 16 trees visible on the edge and another 5 visible in the interior, a total of 21 trees are visible in this arrangement.
+
+Consider you map; how many trees are visible from outside the grid?
+
+thoughts:
+
+- map = %{[x,y] => 3}
+- key works?
+- index top left cornerr [0,0] -- [width -1]
+- go from x[array] = 1..width-1 y[array] = 1..height-1
+- add outer trees (try on several grids)
+- put together coordinate list
+- reduce outerCount --> keep going to each edge....
+- each step should keep going left [0..pos-1?] all less?
+- each step should keep going right [pos|pos+1?..width|width-1] all less
+- go up [0..pos|pos-1?] all less
+- go down [pos|pos+1?..height|height-1] all less
+- if any are all less then visible, but go all directions
+- should it be zero positioned?
+
+**todos**
+
+- done: key of [x,y] works?: yes
+- done: spike call with all coords….inside start at 1, 0 is outside and -2 to be zero based and inside.
+- done: start coding in visitTrees
+- done: spike call with leftVisible range, right, up, down should go from 0..pos-1 pos+1..width-1
+- done: reduce with left/right/up/down working build on previous
+- done: split \n, split on all characters create map with all trees should return map, and width, and height
+- done: add up border of any grid edge visible.
 
