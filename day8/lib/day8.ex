@@ -58,10 +58,36 @@ defmodule Day8 do
   iex> Day8.visibleDown([7,3], %{"7,3" => 2, "7,4" => 2, "7,5" => 1}, 3, 5)
   true
 
+  iex> Day8.distanceLeft([3,3], %{"3,3" => 2, "2,3" => 2, "1,3" => 1}, 3, 0)
+  3
+
+  iex> Day8.distanceLeft([3,3], %{"3,3" => 5, "2,3" => 2, "1,3" => 1}, 3, 0)
+  1
+
+  iex> Day8.distanceRight([1,3], %{"1,3" => 2, "2,3" => 2, "3,3" => 1}, 3, 3, 0)
+  3
+
+  iex> Day8.distanceRight([1,3], %{"1,3" => 5, "2,3" => 2, "3,3" => 1}, 3, 3, 0)
+  1
+
+  iex> Day8.distanceDown([1,1], %{"1,1" => 2, "1,2" => 2, "1,3" => 1}, 3, 3, 0)
+  3
+
+  iex> Day8.distanceDown([1,1], %{"1,1" => 5, "1,2" => 2, "1,3" => 1}, 3, 3, 0)
+  1
+
+  iex> Day8.distanceUp([3,3], %{"3,3" => 2, "3,2" => 2, "3,1" => 1}, 3, 0)
+  3
+
+  iex> Day8.distanceUp([2,1], %{"2,1" => 0}, 5, 0)
+  1
+
+  iex> Day8.distanceUp([3,3], %{"3,3" => 5, "3,2" => 2, "3,1" => 1}, 3, 0)
+  1
+
   """
   def visibleDown([_x, y], _map, _height, cellHeight) when y == cellHeight+1, do: true
   def visibleDown([x, y], map, height, cellHeight) do
-    # TODO need to test in documentation and/or tests with equal
     if map["#{x},#{y}"] >= height do
       false
     else
@@ -87,6 +113,42 @@ defmodule Day8 do
     end
   end
 
+  def distanceDown([_x, y], _map, _cellHeight, height, distance) when y == height + 1, do: distance
+  def distanceDown([x,y], map, cellHeight, height, distance) do
+    if map["#{x},#{y}"] >= cellHeight do
+      distance + 1
+    else
+      distanceDown([x, y+1], map, cellHeight, height, distance + 1)
+    end
+  end
+
+  def distanceRight([x, _y], _map, _cellHeight, width, distance) when x == width + 1, do: distance
+  def distanceRight([x,y], map, cellHeight, width, distance) do
+    if map["#{x},#{y}"] >= cellHeight do
+      distance + 1
+    else
+      distanceRight([x+1, y], map, cellHeight, width, distance + 1)
+    end
+  end
+
+  def distanceLeft([0, _y], _map, _cellHeight, distance), do: distance
+  def distanceLeft([x,y], map, cellHeight, distance) do
+    if map["#{x},#{y}"] >= cellHeight do
+      distance + 1
+    else
+      distanceLeft([x-1, y], map, cellHeight, distance + 1)
+    end
+  end
+
+  def distanceUp([_x, 0], _map, _cellHeight, distance), do: distance
+  def distanceUp([x,y], map, cellHeight, distance) do
+    if map["#{x},#{y}"] >= cellHeight do
+      distance + 1
+    else
+      distanceUp([x, y-1], map, cellHeight, distance + 1)
+    end
+  end
+
 
   def visibleLeft([0, _y], _map, _cellHeight), do: true
   def visibleLeft([x, y], map, cellHeight) do
@@ -96,6 +158,7 @@ defmodule Day8 do
       visibleLeft([x-1, y], map, cellHeight)
     end
   end
+
 
   @doc """
   Coordinates of tree will return visible 1, or not visible 0
@@ -135,6 +198,21 @@ defmodule Day8 do
       end
   end
 
+  def visibleDistanceArea([1, _y], _map, _width, _height, output), do: output
+  def visibleDistanceArea([_x, 1], _map, _width, _height, output), do: output
+  def visibleDistanceArea([x, _y], _map, x, _height, output), do: output
+  def visibleDistanceArea([_x, y], _map, _width, y, output), do: output
+  def visibleDistanceArea([x, y], map, width, height, output) do
+    cellHeight = map["#{x},#{y}"]
+    area = distanceLeft([x-1,y], map, cellHeight, 0) * distanceRight([x+1,y], map, cellHeight, width, 0) *
+             distanceUp([x,y-1], map, cellHeight, 0) *  distanceDown([x,y+1], map, cellHeight, height, 0)
+    if area > output do
+      area
+    else
+      output
+    end
+  end
+
   @doc ~S"""
   Parse into map
 
@@ -150,9 +228,6 @@ defmodule Day8 do
   iex> Day8.parse("303\n255")
   [3, 2, %{"1,1" => 3, "2,1" => 0, "3,1" => 3, "1,2" => 2, "2,2" => 5, "3,2" => 5}]
   """
-
-  # line1 , "303" , y=1 ==> String.graphemes() "3","0","3" => call with x=1, y=1 convert to int and return map | "1,1" => 3
-  # line2 , "255" , y=2
   def parse([], _y, _x, map), do: map
   def parse([head|tail], y, x, map) do
     map = put_in(map["#{x},#{y}"], String.to_integer(head))
@@ -172,20 +247,26 @@ defmodule Day8 do
   def part1(contents) do
     [width, height, map] = parse(contents)
 
-    # map = %{"1,1" => 3, "2,1" => 0, "3,1" => 3, "4,1" => 7, "5,1" => 3,
-    # "1,2" => 2, "2,2" => 5, "3,2" => 5, "4,2" => 1, "5,2" => 2,
-    # "1,3" => 6, "2,3" => 5, "3,3" => 3, "4,3" => 3, "5,3" => 2,
-    # "1,4" => 3, "2,4" => 3, "3,4" => 5, "4,4" => 4, "5,4" => 9,
-    # "1,5" => 3, "2,5" => 5, "3,5" => 3, "4,5" => 9, "5,5" => 0
-    # }
-
     1..width |> Enum.map(fn x -> 1..height |> Enum.map(fn y -> [x,y] end) end)
              |> Enum.flat_map(fn x -> x end)
              |> Enum.reduce(0, fn (treeLocation, output) ->  Day8.visibleTrees(treeLocation, map, width, height, output) end)
   end
 
+  def part2(contents) do
+    [width, height, map] = parse(contents)
+
+    1..width |> Enum.map(fn x -> 1..height |> Enum.map(fn y -> [x,y] end) end)
+             |> Enum.flat_map(fn x -> x end)
+             |> Enum.reduce(0, fn (treeLocation, output) ->  Day8.visibleDistanceArea(treeLocation, map, width, height, output) end)
+  end
+
   def solve1 do
     {:ok, contents} = File.read("day8.txt")
     part1(contents)
+  end
+
+  def solve2 do
+    {:ok, contents} = File.read("day8.txt")
+    part2(contents)
   end
 end

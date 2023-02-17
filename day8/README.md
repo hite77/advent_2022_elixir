@@ -55,3 +55,30 @@ thoughts:
 - done: split \n, split on all characters create map with all trees should return map, and width, and height
 - done: add up border of any grid edge visible.
 
+**Part 2**
+
+viewing distance
+
+```
+30373
+25512
+65332
+33549
+35390
+```
+0 shortest
+9 tallest
+
+- want to view many trees.
+- look all four directions and stop if you reach an edge, or at first tree that is the same height or taller.
+- trees on edge at least one viewing distance will be zero
+- so 1 up
+- so 1 left tree is = or greater right next
+- 2 to the right
+- down can see 2 one lower, and one equal
+
+- then multiple 1 * 1 * 2 * 2  = 4 at [3,2] which is the 5 middle second row
+- for 5 in the middle of fourth row at [3,4]
+- up 2, left 2, down 1, right 2 (next to it lower, second bigger) = 2 * 2 * 1 * 2 == 8
+
+**return highest scenic score**
