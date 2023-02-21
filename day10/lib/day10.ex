@@ -35,8 +35,37 @@ defmodule Day10 do
     220 * map[220]
   end
 
+  def match(coord, value, offset) do
+    actualCoord = coord - offset
+    cond do
+      actualCoord == value     -> "#"
+      actualCoord == value + 1 -> "#"
+      actualCoord == value - 1 -> "#"
+      true                     -> "."
+    end
+  end
+
+  def pixel(coord, frequencyMap, output, offset), do: output <> match(coord, frequencyMap[coord+1], offset)
+
+  def part2(contents) do
+    frequencyMap = timeline(contents)
+    %{
+      1 => Enum.reduce(Enum.to_list(0..39),    "", fn (coord,output) -> pixel(coord, frequencyMap, output,   0) end),
+      2 => Enum.reduce(Enum.to_list(40..79),   "", fn (coord,output) -> pixel(coord, frequencyMap, output,  40) end),
+      3 => Enum.reduce(Enum.to_list(80..119),  "", fn (coord,output) -> pixel(coord, frequencyMap, output,  80) end),
+      4 => Enum.reduce(Enum.to_list(120..159), "", fn (coord,output) -> pixel(coord, frequencyMap, output, 120) end),
+      5 => Enum.reduce(Enum.to_list(160..199), "", fn (coord,output) -> pixel(coord, frequencyMap, output, 160) end),
+      6 => Enum.reduce(Enum.to_list(200..239), "", fn (coord,output) -> pixel(coord, frequencyMap, output, 200) end)
+    }
+  end
+
   def solve1 do
     {:ok, contents} = File.read("day10.txt")
     part1(String.split(contents, "\n", trim: true))
+  end
+
+  def solve2 do
+    {:ok, contents} = File.read("day10.txt")
+    part2(String.split(contents, "\n", trim: true))
   end
 end
