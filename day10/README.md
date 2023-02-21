@@ -1,21 +1,20 @@
 # Day10
 
-**TODO: Add description**
+**Part one**
 
-## Installation
+- addx V adds or subtracts after two cycles
+- noop takes one cycle no effect
+- starts at 1
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `day10` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:day10, "~> 0.1.0"}
-  ]
-end
+```
+noop
+addx 3
+addx -5
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/day10>.
-
+- cycle 1 start noop
+- cycle 2 addx 3 X=1
+- cycle 3 X=1
+- cycle 4 X=4 start of addx -5
+- cycle 5 still 4
+- cycle 6 after 5 -5 for -1.
