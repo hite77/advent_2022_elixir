@@ -37,31 +37,33 @@ defmodule Day11Test do
   end
 
   test "parsing", state do
-    assert Day11.parse(state[:part1]) == %{
+    assert Day11.parse(state[:part1]) == [%{
       0 => [{[79,98], "times", 19, 23, 2, 3}, 0],
       1 => [{[54,65,75,74], "plus", 6, 19, 2, 0}, 0],
       2 => [{[79,60,97], "times", "self", 13, 1, 3}, 0],
       3 => [{[74], "plus", 3, 17, 0, 1}, 0]
-    }
+    }, [17, 13, 19, 23]]
   end
 
   test "turn for monkey" do
-    assert Day11.monkeyTurn(0, %{
+    assert Day11.monkeyTurn([0], %{
       0 => [{[79,69], "times", 19, 23, 2, 3}, 0],
       2 => [{[13], "plus", 6, 19, 2, 0}, 0],
       3 => [{[23,34], "times", "self", 13, 1, 3}, 0]
-      }) == %{
+      }, 3, []) == %{
             0 => [{[], "times", 19, 23, 2, 3}, 2],
-            2 => [{[13,437], "plus", 6, 19, 2, 0}, 0],
-            3 => [{[23,34,500], "times", "self", 13, 1, 3}, 0]
-          }
+            2 => [{[437,13], "plus", 6, 19, 2, 0}, 0],
+            3 => [{[500,23,34], "times", "self", 13, 1, 3}, 0]
+      }
   end
 
-  test "part one", state do
+  test "parts", state do
     assert Day11.part1(state[:part1]) == 10605
+    assert Day11.part2(state[:part1]) == 2713310158
   end
 
   test "solutions" do
     assert Day11.solve1 == 69918
+    assert Day11.solve2 == 19573408701
   end
 end
