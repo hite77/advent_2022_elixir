@@ -29,6 +29,10 @@ abdefghi
     assert map[4] == %{0 => "a", 1 => "b", 2 => "d", 3 => "e", 4 => "f", 5 => "g", 6 => "h", 7 => "i"}
   end
 
+  test "find all a", state do
+    assert Day12.findAllAyes(state[:map]) == [[4, 0], [3, 0], [2, 0], [1, 0], [0, 1], [0, 0]]
+  end
+
   test "move", state do
     assert Day12.move(state[:map], [0,0], [0,1], [5, 8]) == true #S is a
     assert Day12.move(state[:map], [1,0], [1,1], [5, 8]) == true
@@ -79,11 +83,13 @@ abdefghi
     assert visited == [[2, 5], [1, 4], [2, 4]]
   end
 
-  test "part1", state do
+  test "parts", state do
     assert Day12.part1(state[:part1]) == 31
+    assert Day12.part2(state[:part1]) == 29
   end
 
   test "solutions" do
     assert Day12.solve1 == 462
+    assert Day12.solve2 == 451
   end
 end

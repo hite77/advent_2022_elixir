@@ -16,6 +16,7 @@ defmodule Day12 do
     :world
   end
 
+  def find(_maps, _character, [yextents, _xextents], [yextents,_x]), do: nil
   def find(maps, character, [yextents, xextents], [y,xextents]), do: find(maps, character, [yextents, xextents], [y+1,0])
   def find(maps, character, [yextents, xextents], [y,x]) do
     if maps[y][x] == character do
@@ -25,13 +26,33 @@ defmodule Day12 do
     end
   end
 
+  def findMoreAyes(map, [head | tail]) do
+    [y,x] = head
+    result = find(map, "a", calculateExtents(map), [y,x+1])
+    case result do
+      nil -> [head | tail]
+      [y,x] -> findMoreAyes(map, [[y,x], head | tail])
+    end
+  end
+  def findAllAyes(map) do
+    start = find(map, "S", calculateExtents(map), [0,0])
+    result = find(map, "a", calculateExtents(map), [0,0])
+    findMoreAyes(map, [result, start])
+  end
+
+  def calculateExtents(map) do
+    y = length(Map.keys(map))
+    x = length(Map.keys(map[0]))
+    [y, x]
+  end
+
   def parse(contents) do
     maps = String.split(contents, "\n", trim: true)  |> Enum.map(fn line -> String.graphemes(line) end)
                                                      |> Enum.map(fn line->  Stream.with_index(line, 0) |> Enum.reduce(%{}, fn({v,k}, acc)-> Map.put(acc, k, v) end) end)
                                                      |> Stream.with_index(0) |> Enum.reduce(%{}, fn({v,k}, acc)-> Map.put(acc, k, v) end)
-    yextents = length(Map.keys(maps))
-    xextents = length(Map.keys(maps[0]))
-    [find(maps,"S", [yextents, xextents], [0,0]), maps]
+    extents = calculateExtents(maps)
+    positionStart = find(maps,"S", extents, [0,0])
+    [positionStart, maps]
   end
 
   def move(_map, _from, [-1, _tox], _extents), do: false
@@ -102,8 +123,13 @@ defmodule Day12 do
 
   def calculateMoves(true, _map, moves, _visited), do: moves
   def calculateMoves(false, map, moves, visited) do
-    [solved, moves, visited] = loopKeys(false, map, Map.keys(moves), moves, visited)
-    calculateMoves(solved, map, moves, visited)
+    keys = Map.keys(moves)
+    cond do
+      keys == [] -> :large
+      true       -> [solved, moves, visited] = loopKeys(false, map, Map.keys(moves), moves, visited)
+                    calculateMoves(solved, map, moves, visited)
+    end
+
   end
 
   def part1(contents) do
@@ -111,16 +137,30 @@ defmodule Day12 do
     (calculateMoves(false, map, %{0 => [start]}, [start]) |> Enum.count()) - 1
   end
 
+  def handleNoRoutesAndIndicateProgress(starts,start, solved, map, moves, visited) do
+    IO.puts("Pos: #{Enum.find_index(starts, & &1 == start)} of #{length(starts)}")
+    result = calculateMoves(solved, map, moves, visited)
+    cond do
+      result == :large -> 1000 #462 from start should beat this
+      true             -> (result |> Enum.count()) - 1
+    end
+  end
+
   def part2(contents) do
     [_start, map] = parse(contents)
-    # find all a's --> coords list
-    # map over then and call calculateMoves and then count and output the counts
-    # sort and return smallest hd() after sort
-
+    starts = findAllAyes(map)
+    starts           |> Enum.map(fn (start) -> handleNoRoutesAndIndicateProgress(starts, start, false, map, %{0 => [start]}, [start]) end)
+                     |> Enum.sort()
+                     |> hd()
   end
 
   def solve1 do
     {:ok, contents} = File.read("Day12.txt")
     part1(contents)
+  end
+
+  def solve2 do
+    {:ok, contents} = File.read("Day12.txt")
+    part2(contents)
   end
 end
