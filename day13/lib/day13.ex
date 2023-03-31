@@ -15,4 +15,17 @@ defmodule Day13 do
   def hello do
     :world
   end
+
+  # left to right scan []
+
+  def parsePacket(string) do
+    Regex.split(~r/[^\w\/[\/]]+/, string)
+    # <<head::binary-size(1)>> <> tail = string
+    # case head do
+    #   "[" -> parsePacket(tail, level + 1)
+    #   "]" -> parsePacket(tail, level - 1)
+    #   _ -> parsePacket(tail, level)
+    # end
+    #String.split(string, ["[","]"], trim: true)
+  end
 end
