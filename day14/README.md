@@ -21,3 +21,20 @@ should return how many pieces of sand before it falls forever (24)
 test for sand past lowest rock if so we have the sand. 
 
 Need parsing, and map to store rock as # and o as sand.
+
+
+Notes:
+scan in lines, and have maxDepth
+once sand equals maxDepth then stop
+and count the sand
+
+sand should have key value map (x, y = content)
+if not in map is air
+sand calls sand (recursive)
+
+map, current position sand
+sand falls then moves diagonal left, or right.
+if it stops update map, and call sand with init spot
+if maxdepth then return map
+
+method to count sand if map
