@@ -5,12 +5,17 @@ defmodule Day14 do
 
   def solve1 do
     {:ok, contents} = File.read("input.txt")
-    part1(contents)
+    part(contents,:part1)
   end
 
-  def part1(contents) do
+  def solve2 do
+    {:ok, contents} = File.read("input.txt")
+    part(contents,:part2)
+  end
+
+  def part(contents, whichpart) do
     [map, maxDepth] = parseCoordinatesOfRock(contents) |> rockMap()
-    map |> sandFalling(500,0,maxDepth)
+    map |> sandFalling(500,0,maxDepth, whichpart)
         |> countSand()
   end
 
@@ -97,15 +102,23 @@ defmodule Day14 do
     map[x] == nil or map[x][y] == nil
   end
 
-  def sandFalling(map,_sandx,maxdepth,maxdepth), do: map
-  def sandFalling(map,sandx,sandy,maxdepth) do
+  def sandFalling(map,_sandx,maxdepth,maxdepth,:part1), do: map
+  def sandFalling(map,sandx,sandy,maxdepth,:part2) when sandy == maxdepth+1, do: sandFalling(addToMap(sandx,sandy,"o",map),500,0,maxdepth,:part2)
+
+  def sandFalling(map,sandx,sandy,maxdepth,whichpart) do
     cond do
-      trycoord(map,sandx,sandy+1)   -> sandFalling(map,sandx,sandy+1,maxdepth)
-      trycoord(map,sandx-1,sandy+1) -> sandFalling(map,sandx-1,sandy+1,maxdepth)
-      trycoord(map,sandx+1,sandy+1) -> sandFalling(map,sandx+1,sandy+1,maxdepth)
-      # at rest add to map and start another particle.
-      true -> sandFalling(addToMap(sandx,sandy,"o",map),500,0,maxdepth)
+      trycoord(map,sandx,sandy+1)   -> sandFalling(map,sandx,sandy+1,maxdepth,whichpart)
+      trycoord(map,sandx-1,sandy+1) -> sandFalling(map,sandx-1,sandy+1,maxdepth,whichpart)
+      trycoord(map,sandx+1,sandy+1) -> sandFalling(map,sandx+1,sandy+1,maxdepth,whichpart)
+      true -> case whichpart == :part2 and restAtStart(map) do
+        true -> map # completed
+        false -> sandFalling(addToMap(sandx,sandy,"o",map),500,0,maxdepth,whichpart)
+      end
     end
+  end
+
+  def restAtStart(map) do
+    map[500] != nil && map[500][0] == "o"
   end
 
   def isSand(item) do

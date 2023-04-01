@@ -38,3 +38,8 @@ if it stops update map, and call sand with init spot
 if maxdepth then return map
 
 method to count sand if map
+
+Part 2
+
+floor infinite is 2 more than max depth
+keep going till rest position is 500,0

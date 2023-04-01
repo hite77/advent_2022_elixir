@@ -30,11 +30,13 @@ defmodule Day14Test do
                     503 => %{4 => "#"}}
   end
 
-  test "part1", state do
-    assert Day14.part1(state[:contents]) == 24
+  test "parts", state do
+    assert Day14.part(state[:contents],:part1) == 24
+    assert Day14.part(state[:contents],:part2) == 93
   end
 
-  test "solve1" do
+  test "solve" do
     assert Day14.solve1 == 1406
+    assert Day14.solve2 == 20870
   end
 end
